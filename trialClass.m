@@ -1,4 +1,4 @@
-% single trial
+acc% single trial
 classdef trialClass
     properties
         data; %the coda files
@@ -39,79 +39,7 @@ classdef trialClass
         weightOffsetMarker;
         weightOffsetHandDevice;
     end
-    %{
-    data = load('CodaFiles/LabTest10_032_2022_6_21'); % load Coda data file
-    handDeviceData = readmatrix('HandSensorData/5WAI3.TXT');
     
-    %data = reorientData(data); % for force plates and markers
-    
-    massLoad = 5+0.5; %5kg plus the hand sensor and stand %
-    participantMass = 75.00; % weight the participants
-    
-    %cut the data (to get the relivant part in the trial)
-    [handDeviceData, humanForcePlate, weightForcePlateForce, gastrocnemius, bicep, tibialisAnterior, ankle, knee, hip, shoulder, elbow, wrist, calc, MT, toe, stand, weight] = cutAndFilterData(data, handDeviceData, massLoad);
-    
-    timeVectorMarkers = (1:length(ankle))/200; %to be able to plot the data in seconds (fine that this is filterned data, yes)
-    timeVectorForcePlate = (1:length(humanForcePlate))/2000;
-    timeVectorEMG = (1:length(gastrocnemius))/2000; % time for 1 emg sensor
-    
-    %calcualte CoM of segments and system %comsSegment: 1=foot, 2=lowerLeg, 3=thigh, 4=truck%Head, 5=upperArm, 6=forearm, 7=weight
-    [comSystem, comsSegment, comWeightC, weightForcePlateForceMarkerSync, segmentAngleAnkle] = calcualteCoMs(ankle, calc, toe, knee, hip, shoulder, elbow, wrist, stand, weight, weightForcePlateForce, participantMass); %all 7 CoMs for x and z axis.
-    
-    %plot summary data
-    plotSummaryData(calc, MT, toe, timeVectorMarkers, timeVectorForcePlate, comSystem(:,1), weight, 10, segmentAngleAnkle, ...
-        humanForcePlate, weightForcePlateForce, handDeviceData, 1, 1, 1);
-    
-    %slice data
-    [numberOfRepetitions, weightMovementStartIndexes, weightMovementStartIndexesHandDevice, weightMimimumDisplacements, repetionLengths, maxRepetitionLength] = sliceData(weight, handDeviceData);
-    
-    %hand device distance
-    handDeviceDiantanceWithAngle = (handDeviceData(:,3)/1000).*cos(deg2rad(handDeviceData(:,4))); %/1000 for grams
-    
-    %Closest distance of the weight to chest, chnage to interpolate markers
-    weightMinimumDistanceMarker = min(weightMimimumDisplacements);
-    
-    %calcaule the CoM Offset from the markers and the hand device
-    weightOffsetMarker =  ((comWeightC-weightMinimumDistanceMarker)/1000).*(-0.1*weightForcePlateForceMarkerSync); % weight*distance (from the marker and force plate)
-    weightOffsetHandDevice = (handDeviceData(:,2)/1000).*handDeviceDiantanceWithAngle;
-    
-    %animation
-    %drawAnimation(ankle, knee, shoulder, elbow, wrist, calc, MT, stand, weight, xComFoot, xCoMFoot);
-    
-    %plotCoMs %CoM if dynamic weight is used (how to calcualte this?)
-    plotComs(calc, ankle, MT, toe, knee, hip, shoulder, elbow, wrist, comsSegment)
-    
-    %plot summary data
-    plotSummaryData(calc, MT, toe, timeVectorMarkers, timeVectorForcePlate, comSystem(:,1), weight, weightMinimumDistanceMarker, segmentAngleAnkle, ...
-        humanForcePlate, weightForcePlateForce, handDeviceData, handDeviceDiantanceWithAngle, weightOffsetMarker, weightOffsetHandDevice);
-    
-    %plot emg
-    plotEmgOverall(gastrocnemius, tibialisAnterior, bicep, timeVectorEMG, segmentAngleAnkle, timeVectorMarkers, ...
-        handDeviceData(:,3), handDeviceData(:,1));
-    
-    %plot movement gradients
-    plotWeightmovements(weight, timeVectorMarkers);
-    
-    %plot sliced hand sensor data
-    plotSlicedHandSensorData(maxRepetitionLength, numberOfRepetitions, handDeviceData, weightMovementStartIndexes,...
-        weightMovementStartIndexesHandDevice, timeVectorMarkers, weight, repetionLengths)
-    
-    %plot sliced movement data
-    plotSlicedMovementData(timeVectorMarkers, timeVectorForcePlate, maxRepetitionLength, numberOfRepetitions,...
-        repetionLengths, humanForcePlate, comSystem(:,1), weight, weightMovementStartIndexes, segmentAngleAnkle);
-    
-    %plotSlicedEmg
-    plotSlicedEmg(timeVectorMarkers, timeVectorForcePlate, repetionLengths, maxRepetitionLength, numberOfRepetitions, ...
-        weightMovementStartIndexes, weight, gastrocnemius, tibialisAnterior, bicep, segmentAngleAnkle);
-    
-    %plotWeightDistances
-    plotWeightDistance(comsSegment(:,:,7), timeVectorMarkers, weightMinimumDistanceMarker, handDeviceData, handDeviceDiantanceWithAngle)
-    
-    %plotCoMOffset
-    plotComOffset(numberOfRepetitions, weightOffsetHandDevice, weightMovementStartIndexesHandDevice, ...
-        handDeviceData, timeVectorMarkers, weightOffsetMarker)
-    
-    %}
     methods
         function this = trialClass(dataLocation, handDeviceDataLocation, participantMass, massLoad, reorient) %constructor
             this.data = load(dataLocation); % load Coda data file (before cut)  'CodaFiles/LabTest10_032_2022_6_21'
